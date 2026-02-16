@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabeller SVB</title>
+    <title>Ny Teknik - Tabell</title>
     
     <!-- Tabulator -->
     <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
@@ -66,7 +66,7 @@
         }
         
         #tabell {
-            min-width: 600px;
+            min-width: 700px;
         }
         
         .scroll-hint {
@@ -92,7 +92,11 @@
         
         @media (max-width: 768px) {
             body {
-                padding: 1rem;
+                padding: 0.75rem;
+            }
+            
+            h1 {
+                font-size: 1.1rem;
             }
             
             .scroll-hint {
@@ -104,26 +108,28 @@
         .tabulator {
             background: #f0c4c4;
             border: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         
         .tabulator-header {
             background: #f0c4c4;
             border-bottom: 2px solid #1a1a1a;
+            border-top: none;
         }
         
         .tabulator-header .tabulator-col {
             background: #f0c4c4 !important;
             border-right: none;
+            border-top: none;
         }
         
         .tabulator-header .tabulator-col-content {
-            padding: 0.75rem 0.5rem;
+            padding: 0.5rem 0.4rem;
         }
         
         .tabulator-header .tabulator-col-title {
             font-weight: 600;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 0.02em;
             color: #1a1a1a;
@@ -134,11 +140,12 @@
         
         .tabulator-header .tabulator-col {
             height: auto !important;
-            min-height: 60px;
+            min-height: 50px;
         }
         
         .tabulator-tableholder {
             background: #f0c4c4;
+            overflow: hidden !important;
         }
         
         .tabulator-row {
@@ -155,43 +162,13 @@
         }
         
         .tabulator-cell {
-            padding: 0.6rem 0.5rem;
+            padding: 0.5rem 0.4rem;
             border-right: none;
             color: #1a1a1a;
         }
         
         .tabulator-footer {
-            background: #f0c4c4;
-            border-top: 1px solid #e8b8b8;
-            padding: 0.6rem 0;
-        }
-        
-        .tabulator-footer .tabulator-page {
-            background: #fff;
-            border: 1px solid #e8b8b8;
-            border-radius: 4px;
-            padding: 0.4rem 0.65rem;
-            margin: 0 0.2rem;
-            color: #1a1a1a;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-        
-        .tabulator-footer .tabulator-page:hover {
-            background: #f5d0d0;
-        }
-        
-        .tabulator-footer .tabulator-page.active {
-            background: #c41e3a;
-            border-color: #c41e3a;
-            color: white;
-        }
-        
-        .source {
-            margin-top: 1rem;
-            font-size: 0.75rem;
-            font-style: italic;
-            color: #666;
+            display: none;
         }
     </style>
 </head>
@@ -284,9 +261,10 @@
                                         if (isNaN(num)) return val;
                                         return num.toLocaleString('sv-SE', {minimumFractionDigits: 1, maximumFractionDigits: 1});
                                     };
-                                    col.minWidth = 80;
+                                    col.minWidth = 70;
                                 } else if (index === 0) {
-                                    col.minWidth = 150;
+                                    col.minWidth = 180;
+                                    col.hozAlign = 'left';
                                 }
                                 
                                 return col;

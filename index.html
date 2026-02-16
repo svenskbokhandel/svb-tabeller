@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NTabeller SVB</title>
+    <title>Tabell SVB</title>
     
     <!-- Tabulator -->
     <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
@@ -119,14 +119,20 @@
         
         .tabulator-header {
             background: #f0c4c4;
+            border: none;
             border-bottom: 2px solid #1a1a1a;
-            border-top: none;
+        }
+        
+        .tabulator-header, 
+        .tabulator-header .tabulator-col,
+        .tabulator-header .tabulator-col-row-handle,
+        .tabulator-header .tabulator-col-content {
+            background: #f0c4c4 !important;
+            border: none !important;
         }
         
         .tabulator-header .tabulator-col {
-            background: #f0c4c4 !important;
-            border-right: none;
-            border-top: none;
+            border-bottom: 2px solid #1a1a1a !important;
         }
         
         .tabulator-header .tabulator-col-content {

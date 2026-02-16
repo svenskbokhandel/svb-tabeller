@@ -229,86 +229,104 @@
             const csvUrl = tabellNamn + '.csv';
             
             // Hämta och parsa CSV
-            Papa.parse(csvUrl, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    if (results.errors.length > 0 || results.data.length === 0) {
-                        document.getElementById('title').textContent = 'Fel';
-                        document.getElementById('tabell').innerHTML = '<div class="error">Kunde inte ladda: ' + tabellNamn + '.csv</div>';
-                        return;
+            fetch(csvUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Kunde inte ladda fil');
+                    return response.text();
+                })
+                .then(csvText => {
+                    // Kolla om första raden är en titel (börjar med #titel:)
+                    let titel = tabellNamn.charAt(0).toUpperCase() + tabellNamn.slice(1).replace(/-/g, ' ');
+                    let csvData = csvText;
+                    
+                    const lines = csvText.split('\n');
+                    if (lines[0].startsWith('#titel:')) {
+                        titel = lines[0].replace('#titel:', '').trim();
+                        csvData = lines.slice(1).join('\n');
                     }
                     
-                    const data = results.data;
-                    const headers = results.meta.fields;
+                    document.getElementById('title').textContent = titel;
                     
-                    // Sätt titel från första kolumnens namn eller tabellnamn
-                    document.getElementById('title').textContent = tabellNamn.charAt(0).toUpperCase() + tabellNamn.slice(1).replace(/-/g, ' ');
-                    
-                    // Bygg kolumner dynamiskt
-                    const columns = headers.map(function(header, index) {
-                        const col = {
-                            title: header.replace(/_/g, ' '),
-                            field: header,
-                            headerSort: true
-                        };
-                        
-                        // Kolla om kolumnen innehåller siffror
-                        const sampleValues = data.slice(0, 5).map(function(row) { return row[header]; });
-                        const isNumeric = sampleValues.every(function(val) {
-                            if (!val || val === '-' || val === '–') return true;
-                            const cleaned = String(val).replace(/\s/g, '').replace(',', '.').replace('%', '');
-                            return !isNaN(parseFloat(cleaned));
-                        });
-                        
-                        if (isNumeric && index > 0) {
-                            col.sorter = 'number';
-                            col.hozAlign = 'right';
-                            col.formatter = function(cell) {
-                                const val = cell.getValue();
-                                if (!val || val === '-' || val === '–') return '–';
-                                const num = parseFloat(String(val).replace(/\s/g, '').replace(',', '.'));
-                                if (isNaN(num)) return val;
-                                return num.toLocaleString('sv-SE', {minimumFractionDigits: 1, maximumFractionDigits: 1});
-                            };
-                        }
-                        
-                        // Första kolumnen lite bredare
-                        if (index === 0) {
-                            col.width = 220;
-                        }
-                        
-                        return col;
-                    });
-                    
-                    // Skapa tabellen
-                    var table = new Tabulator("#tabell", {
-                        data: data,
-                        columns: columns,
-                        layout: "fitDataStretch",
-                        initialSort: columns.length > 1 ? [{column: headers[1], dir: "desc"}] : []
-                    });
-                    
-                    // Sökfunktion
-                    document.getElementById("search").addEventListener("input", function(e) {
-                        var val = e.target.value.toLowerCase();
-                        if (val === "") {
-                            table.clearFilter();
-                        } else {
-                            table.setFilter(function(rowData) {
-                                return Object.values(rowData).some(function(cellVal) {
-                                    return String(cellVal).toLowerCase().indexOf(val) > -1;
+                    // Parsa CSV
+                    Papa.parse(csvData, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            if (results.errors.length > 0 || results.data.length === 0) {
+                                document.getElementById('tabell').innerHTML = '<div class="error">Kunde inte läsa data från: ' + tabellNamn + '.csv</div>';
+                                return;
+                            }
+                            
+                            const data = results.data;
+                            const headers = results.meta.fields;
+                            
+                            // Bygg kolumner dynamiskt
+                            const columns = headers.map(function(header, index) {
+                                const col = {
+                                    title: header.replace(/_/g, ' '),
+                                    field: header,
+                                    headerSort: true
+                                };
+                                
+                                // Kolla om kolumnen innehåller siffror
+                                const sampleValues = data.slice(0, 5).map(function(row) { return row[header]; });
+                                const isNumeric = sampleValues.every(function(val) {
+                                    if (!val || val === '-' || val === '–') return true;
+                                    const cleaned = String(val).replace(/\s/g, '').replace(',', '.').replace('%', '');
+                                    return !isNaN(parseFloat(cleaned));
                                 });
+                                
+                                if (isNumeric && index > 0) {
+                                    col.sorter = 'number';
+                                    col.hozAlign = 'right';
+                                    col.formatter = function(cell) {
+                                        const val = cell.getValue();
+                                        if (!val || val === '-' || val === '–') return '–';
+                                        const num = parseFloat(String(val).replace(/\s/g, '').replace(',', '.'));
+                                        if (isNaN(num)) return val;
+                                        return num.toLocaleString('sv-SE', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+                                    };
+                                }
+                                
+                                // Första kolumnen lite bredare
+                                if (index === 0) {
+                                    col.width = 220;
+                                }
+                                
+                                return col;
                             });
+                            
+                            // Skapa tabellen
+                            var table = new Tabulator("#tabell", {
+                                data: data,
+                                columns: columns,
+                                layout: "fitDataStretch",
+                                initialSort: columns.length > 1 ? [{column: headers[1], dir: "desc"}] : []
+                            });
+                            
+                            // Sökfunktion
+                            document.getElementById("search").addEventListener("input", function(e) {
+                                var val = e.target.value.toLowerCase();
+                                if (val === "") {
+                                    table.clearFilter();
+                                } else {
+                                    table.setFilter(function(rowData) {
+                                        return Object.values(rowData).some(function(cellVal) {
+                                            return String(cellVal).toLowerCase().indexOf(val) > -1;
+                                        });
+                                    });
+                                }
+                            });
+                        },
+                        error: function(error) {
+                            document.getElementById('tabell').innerHTML = '<div class="error">Fel vid parsning av CSV</div>';
                         }
                     });
-                },
-                error: function(error) {
+                })
+                .catch(error => {
                     document.getElementById('title').textContent = 'Fel';
                     document.getElementById('tabell').innerHTML = '<div class="error">Kunde inte hitta: ' + tabellNamn + '.csv</div>';
-                }
-            });
+                });
         });
     </script>
 </body>

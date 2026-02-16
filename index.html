@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ny Teknik - Tabell</title>
+    
+    <!-- Tabulator -->
+    <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
+    
+    <!-- Papa Parse för CSV -->
+    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5d5d5;
+            color: #1a1a1a;
+            line-height: 1.5;
+            padding: 1.5rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+        
+        .search-box {
+            margin-bottom: 1rem;
+        }
+        
+        .search-box input {
+            padding: 0.6rem 1rem;
+            border: 2px solid #e8b8b8;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            width: 280px;
+            max-width: 100%;
+            background: #fff;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #c41e3a;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        #tabell {
+            min-width: 600px;
+        }
+        
+        .scroll-hint {
+            display: none;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .error {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            color: #c41e3a;
+        }
+        
+        .loading {
+            padding: 2rem;
+            text-align: center;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .scroll-hint {
+                display: block;
+            }
+        }
+        
+        /* Tabulator rosa tema */
+        .tabulator {
+            background: #f0c4c4;
+            border: none;
+            font-size: 0.9rem;
+        }
+        
+        .tabulator-header {
+            background: #f0c4c4;
+            border-bottom: 2px solid #1a1a1a;
+        }
+        
+        .tabulator-header .tabulator-col {
+            background: #f0c4c4 !important;
+            border-right: none;
+        }
+        
+        .tabulator-header .tabulator-col-content {
+            padding: 0.75rem 0.5rem;
+        }
+        
+        .tabulator-header .tabulator-col-title {
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            color: #1a1a1a;
+        }
+        
+        .tabulator-tableholder {
+            background: #f0c4c4;
+        }
+        
+        .tabulator-row {
+            background: #f0c4c4 !important;
+            border-bottom: 1px solid #e8b8b8;
+        }
+        
+        .tabulator-row:nth-child(even) {
+            background: #f5d0d0 !important;
+        }
+        
+        .tabulator-row:hover {
+            background: #e8b0b0 !important;
+        }
+        
+        .tabulator-cell {
+            padding: 0.6rem 0.5rem;
+            border-right: none;
+            color: #1a1a1a;
+        }
+        
+        .tabulator-footer {
+            background: #f0c4c4;
+            border-top: 1px solid #e8b8b8;
+            padding: 0.6rem 0;
+        }
+        
+        .tabulator-footer .tabulator-page {
+            background: #fff;
+            border: 1px solid #e8b8b8;
+            border-radius: 4px;
+            padding: 0.4rem 0.65rem;
+            margin: 0 0.2rem;
+            color: #1a1a1a;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .tabulator-footer .tabulator-page:hover {
+            background: #f5d0d0;
+        }
+        
+        .tabulator-footer .tabulator-page.active {
+            background: #c41e3a;
+            border-color: #c41e3a;
+            color: white;
+        }
+        
+        .source {
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">Laddar...</h1>
+        
+        <div class="search-box">
+            <input type="text" id="search" placeholder="🔍 Sök...">
+        </div>
+        
+        <p class="scroll-hint">👉 Svep för att se fler kolumner</p>
+        
+        <div class="table-container">
+            <div id="tabell"><div class="loading">Laddar data...</div></div>
+        </div>
+        
+        <p class="source" id="source"></p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // Hämta tabellnamn från URL (?tabell=agenturer)
+            const params = new URLSearchParams(window.location.search);
+            const tabellNamn = params.get('tabell');
+            
+            if (!tabellNamn) {
+                document.getElementById('title').textContent = 'Ingen tabell vald';
+                document.getElementById('tabell').innerHTML = '<div class="error">Ange tabell i URL:en, t.ex. ?tabell=agenturer</div>';
+                return;
+            }
+            
+            // Bygg URL till CSV-filen (samma mapp)
+            const csvUrl = tabellNamn + '.csv';
+            
+            // Hämta och parsa CSV
+            Papa.parse(csvUrl, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.errors.length > 0 || results.data.length === 0) {
+                        document.getElementById('title').textContent = 'Fel';
+                        document.getElementById('tabell').innerHTML = '<div class="error">Kunde inte ladda: ' + tabellNamn + '.csv</div>';
+                        return;
+                    }
+                    
+                    const data = results.data;
+                    const headers = results.meta.fields;
+                    
+                    // Sätt titel från första kolumnens namn eller tabellnamn
+                    document.getElementById('title').textContent = tabellNamn.charAt(0).toUpperCase() + tabellNamn.slice(1).replace(/-/g, ' ');
+                    
+                    // Bygg kolumner dynamiskt
+                    const columns = headers.map(function(header, index) {
+                        const col = {
+                            title: header.replace(/_/g, ' '),
+                            field: header,
+                            headerSort: true
+                        };
+                        
+                        // Kolla om kolumnen innehåller siffror
+                        const sampleValues = data.slice(0, 5).map(function(row) { return row[header]; });
+                        const isNumeric = sampleValues.every(function(val) {
+                            if (!val || val === '-' || val === '–') return true;
+                            const cleaned = String(val).replace(/\s/g, '').replace(',', '.').replace('%', '');
+                            return !isNaN(parseFloat(cleaned));
+                        });
+                        
+                        if (isNumeric && index > 0) {
+                            col.sorter = 'number';
+                            col.hozAlign = 'right';
+                            col.formatter = function(cell) {
+                                const val = cell.getValue();
+                                if (!val || val === '-' || val === '–') return '–';
+                                const num = parseFloat(String(val).replace(/\s/g, '').replace(',', '.'));
+                                if (isNaN(num)) return val;
+                                return num.toLocaleString('sv-SE', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+                            };
+                        }
+                        
+                        // Första kolumnen lite bredare
+                        if (index === 0) {
+                            col.width = 220;
+                        }
+                        
+                        return col;
+                    });
+                    
+                    // Skapa tabellen
+                    var table = new Tabulator("#tabell", {
+                        data: data,
+                        columns: columns,
+                        layout: "fitDataStretch",
+                        initialSort: columns.length > 1 ? [{column: headers[1], dir: "desc"}] : []
+                    });
+                    
+                    // Sökfunktion
+                    document.getElementById("search").addEventListener("input", function(e) {
+                        var val = e.target.value.toLowerCase();
+                        if (val === "") {
+                            table.clearFilter();
+                        } else {
+                            table.setFilter(function(rowData) {
+                                return Object.values(rowData).some(function(cellVal) {
+                                    return String(cellVal).toLowerCase().indexOf(val) > -1;
+                                });
+                            });
+                        }
+                    });
+                },
+                error: function(error) {
+                    document.getElementById('title').textContent = 'Fel';
+                    document.getElementById('tabell').innerHTML = '<div class="error">Kunde inte hitta: ' + tabellNamn + '.csv</div>';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

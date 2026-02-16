@@ -24,7 +24,7 @@
             background: #f5d5d5;
             color: #1a1a1a;
             line-height: 1.5;
-            padding: 1.5rem;
+            padding: 1rem 1.5rem;
         }
         
         .container {
@@ -208,8 +208,6 @@
         <div class="table-container">
             <div id="tabell"><div class="loading">Laddar data...</div></div>
         </div>
-        
-        <p class="source" id="source"></p>
     </div>
 
     <script>
@@ -286,11 +284,9 @@
                                         if (isNaN(num)) return val;
                                         return num.toLocaleString('sv-SE', {minimumFractionDigits: 1, maximumFractionDigits: 1});
                                     };
-                                }
-                                
-                                // Första kolumnen lite bredare
-                                if (index === 0) {
-                                    col.width = 220;
+                                    col.minWidth = 80;
+                                } else if (index === 0) {
+                                    col.minWidth = 150;
                                 }
                                 
                                 return col;
@@ -300,7 +296,7 @@
                             var table = new Tabulator("#tabell", {
                                 data: data,
                                 columns: columns,
-                                layout: "fitDataStretch",
+                                layout: "fitColumns",
                                 initialSort: columns.length > 1 ? [{column: headers[1], dir: "desc"}] : []
                             });
                             

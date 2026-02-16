@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ny Teknik - Tabell</title>
+    <title>Tabeller SVB</title>
     
     <!-- Tabulator -->
     <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
@@ -19,17 +19,23 @@
             padding: 0;
         }
         
+        html, body {
+            height: auto;
+            min-height: 0;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5d5d5;
             color: #1a1a1a;
             line-height: 1.5;
-            padding: 1rem 1.5rem;
+            padding: 1rem 1.5rem 1rem 1.5rem;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding-bottom: 0.5rem;
         }
         
         h1 {
@@ -37,12 +43,12 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.02em;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             color: #1a1a1a;
         }
         
         .search-box {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
         
         .search-box input {
@@ -261,9 +267,10 @@
                                         if (isNaN(num)) return val;
                                         return num.toLocaleString('sv-SE', {minimumFractionDigits: 1, maximumFractionDigits: 1});
                                     };
-                                    col.minWidth = 70;
+                                    col.width = 95;
                                 } else if (index === 0) {
-                                    col.minWidth = 180;
+                                    col.minWidth = 200;
+                                    col.widthGrow = 2;
                                     col.hozAlign = 'left';
                                 }
                                 

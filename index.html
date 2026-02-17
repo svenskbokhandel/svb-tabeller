@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabeller SVB</title>
+    <title>Ny Teknik - Tabell</title>
     
     <!-- Tabulator -->
     <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
@@ -182,6 +182,20 @@
         .tabulator-footer {
             display: none;
         }
+        
+        .instruction {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+        
+        .footnote {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.75rem;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -194,9 +208,13 @@
         
         <p class="scroll-hint">👉 Svep för att se fler kolumner</p>
         
+        <p class="instruction">Klicka på en kolumnrubrik för att sortera</p>
+        
         <div class="table-container">
             <div id="tabell"><div class="loading">Laddar data...</div></div>
         </div>
+        
+        <p class="footnote" id="footnote"></p>
     </div>
 
     <script>
@@ -232,17 +250,32 @@
                     return response.text();
                 })
                 .then(csvText => {
-                    // Kolla om första raden är en titel (börjar med #titel:)
+                    // Kolla om första raderna är titel/fotnot (börjar med #)
                     let titel = tabellNamn.charAt(0).toUpperCase() + tabellNamn.slice(1).replace(/-/g, ' ');
+                    let fotnot = '';
                     let csvData = csvText;
                     
                     const lines = csvText.split('\n');
-                    if (lines[0].startsWith('#titel:')) {
-                        titel = lines[0].replace('#titel:', '').trim();
-                        csvData = lines.slice(1).join('\n');
+                    let dataStartIndex = 0;
+                    
+                    for (let i = 0; i < Math.min(lines.length, 5); i++) {
+                        if (lines[i].startsWith('#titel:')) {
+                            titel = lines[i].replace('#titel:', '').trim();
+                            dataStartIndex = i + 1;
+                        } else if (lines[i].startsWith('#fotnot:')) {
+                            fotnot = lines[i].replace('#fotnot:', '').trim();
+                            dataStartIndex = i + 1;
+                        } else if (!lines[i].startsWith('#')) {
+                            break;
+                        }
                     }
                     
+                    csvData = lines.slice(dataStartIndex).join('\n');
+                    
                     document.getElementById('title').textContent = titel;
+                    if (fotnot) {
+                        document.getElementById('footnote').textContent = fotnot;
+                    }
                     
                     // Parsa CSV
                     Papa.parse(csvData, {

@@ -86,7 +86,7 @@
             .scroll-hint { display: block; }
 
             #tabell {
-                min-width: 1050px;
+                min-width: 980px;
             }
 
             .tabulator-header .tabulator-col-title {
@@ -121,14 +121,23 @@
         }
 
         .tabulator-header .tabulator-col-content {
-            padding: 0.5rem 0.4rem;
+            padding: 0.5rem 1.15rem 0.5rem 0.3rem;
+            position: relative;
+        }
+
+        .tabulator-header .tabulator-col .tabulator-col-sorter {
+            position: absolute !important;
+            right: 0.22rem !important;
+            top: 50% !important;
+            transform: translateY(-50%);
+            margin: 0 !important;
         }
 
         .tabulator-header .tabulator-col-title {
             font-weight: 600;
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             text-transform: uppercase;
-            letter-spacing: 0.01em;
+            letter-spacing: 0;
             color: #1a1a1a;
             white-space: normal !important;
             overflow: visible !important;
@@ -314,27 +323,27 @@
                                 }
 
                                 if (index === 0) {
-                                    col.minWidth = 175;
+                                    col.minWidth = 155;
                                     col.widthGrow = 2.2;
                                     col.hozAlign = 'left';
                                 } else if (isWideTable) {
                                     // Fördela platsen efter innehållstyp i breda tabeller.
                                     // Grupp, ort och bokslut får lite mer plats än sifferkolumnerna.
                                     if (index === 1) {
-                                        col.minWidth = 82;
-                                        col.widthGrow = 0.9;
-                                    } else if (index === 2) {
-                                        col.minWidth = 78;
-                                        col.widthGrow = 0.9;
-                                    } else if (index === 3) {
-                                        col.minWidth = 82;
-                                        col.widthGrow = 0.9;
-                                    } else if (index === 4 || index === 10) {
-                                        col.minWidth = 62;
-                                        col.widthGrow = 0.65;
-                                    } else {
                                         col.minWidth = 72;
-                                        col.widthGrow = 0.8;
+                                        col.widthGrow = 0.85;
+                                    } else if (index === 2) {
+                                        col.minWidth = 70;
+                                        col.widthGrow = 0.85;
+                                    } else if (index === 3) {
+                                        col.minWidth = 72;
+                                        col.widthGrow = 0.85;
+                                    } else if (index === 4 || index === 10) {
+                                        col.minWidth = 56;
+                                        col.widthGrow = 0.6;
+                                    } else {
+                                        col.minWidth = 66;
+                                        col.widthGrow = 0.75;
                                     }
                                 } else if (isNumeric && index > 0) {
                                     col.minWidth = 75;

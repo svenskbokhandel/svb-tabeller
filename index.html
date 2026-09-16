@@ -85,7 +85,18 @@
             h1 { font-size: 1.1rem; }
             .scroll-hint { display: block; }
 
+            .table-container {
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                touch-action: pan-x pan-y;
+            }
+
             #tabell {
+                min-width: 980px;
+            }
+
+            .tabulator {
                 min-width: 980px;
             }
 
@@ -171,7 +182,7 @@
 
         .tabulator-tableholder {
             background: #f0c4c4;
-            overflow-x: auto !important;
+            overflow-x: hidden !important;
         }
 
         .tabulator-row {

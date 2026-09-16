@@ -157,6 +157,16 @@
             overflow-wrap: normal !important;
             word-break: keep-all !important;
             hyphens: none !important;
+            line-height: 1.2;
+            max-height: 2.4em;
+            overflow: hidden !important;
+            position: relative;
+        }
+
+        /* Diskret toning i slutet på långa rubriker */
+        .wide-table .tabulator-header .tabulator-col-title.is-truncated {
+            -webkit-mask-image: linear-gradient(to right, #000 82%, transparent 100%);
+            mask-image: linear-gradient(to right, #000 82%, transparent 100%);
         }
 
         .tabulator-tableholder {
@@ -309,7 +319,8 @@
                                 const col = {
                                     title: (isWideTable && shortTitles[index]) ? shortTitles[index] : header.replace(/_/g, ' '),
                                     field: header,
-                                    headerSort: true
+                                    headerSort: true,
+                                    resizable: false
                                 };
 
                                 const sampleValues = data.slice(0, 5).map(function(row) {
@@ -376,6 +387,12 @@
                                 return col;
                             });
 
+                            // Visa hela rubriken vid hovring. Själva tabellen kan använda
+                            // kortare visningsrubriker, men tooltipen visar originalrubriken.
+                            columns.forEach(function(col, i) {
+                                col.headerTooltip = headers[i].replace(/_/g, ' ');
+                            });
+
                             var table = new Tabulator("#tabell", {
                                 data: data,
                                 columns: columns,
@@ -389,7 +406,14 @@
                                     : []
                             });
 
-                            table.on("tableBuilt", sendHeight);
+                            table.on("tableBuilt", function() {
+                                document.querySelectorAll('.tabulator-col-title').forEach(function(el) {
+                                    if (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight) {
+                                        el.classList.add('is-truncated');
+                                    }
+                                });
+                                sendHeight();
+                            });
                             table.on("dataProcessed", sendHeight);
 
                             document.getElementById("search").addEventListener("input", function(e) {

@@ -4,40 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ny Teknik - Tabell</title>
-    
-    <!-- Tabulator -->
+
     <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
     <script src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
-    
-    <!-- Papa Parse för CSV -->
     <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-    
+
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        html, body {
-            height: auto;
-            min-height: 0;
-        }
-        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: auto; min-height: 0; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5d5d5;
             color: #1a1a1a;
             line-height: 1.5;
-            padding: 1rem 1.5rem 1rem 1.5rem;
+            padding: 1rem 1.5rem;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding-bottom: 0.5rem;
         }
-        
+
         h1 {
             font-size: 1.3rem;
             font-weight: 700;
@@ -46,11 +35,9 @@
             margin-bottom: 0.75rem;
             color: #1a1a1a;
         }
-        
-        .search-box {
-            margin-bottom: 0.75rem;
-        }
-        
+
+        .search-box { margin-bottom: 0.75rem; }
+
         .search-box input {
             padding: 0.6rem 1rem;
             border: 2px solid #e8b8b8;
@@ -60,28 +47,26 @@
             max-width: 100%;
             background: #fff;
         }
-        
+
         .search-box input:focus {
             outline: none;
             border-color: #c41e3a;
         }
-        
+
         .table-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
-        
-        #tabell {
-            min-width: 650px;
-        }
-        
+
+        #tabell { min-width: 650px; }
+
         .scroll-hint {
             display: none;
             font-size: 0.8rem;
             color: #666;
             margin-bottom: 0.5rem;
         }
-        
+
         .error {
             background: #fff;
             padding: 2rem;
@@ -89,56 +74,49 @@
             text-align: center;
             color: #c41e3a;
         }
-        
+
         .loading {
             padding: 2rem;
             text-align: center;
             color: #666;
         }
-        
+
         @media (max-width: 768px) {
-            body {
-                padding: 0.75rem;
-            }
-            
-            h1 {
-                font-size: 1.1rem;
-            }
-            
-            .scroll-hint {
-                display: block;
-            }
+            body { padding: 0.75rem; }
+            h1 { font-size: 1.1rem; }
+            .scroll-hint { display: block; }
         }
-        
-        /* Tabulator rosa tema */
+
         .tabulator {
             background: #f0c4c4;
             border: none;
             font-size: 0.85rem;
         }
-        
+
         .tabulator-header {
             background: #f0c4c4;
             border: none;
             border-bottom: 2px solid #1a1a1a;
         }
-        
-        .tabulator-header, 
+
+        .tabulator-header,
         .tabulator-header .tabulator-col,
         .tabulator-header .tabulator-col-row-handle,
         .tabulator-header .tabulator-col-content {
             background: #f0c4c4 !important;
             border: none !important;
         }
-        
+
         .tabulator-header .tabulator-col {
             border-bottom: 2px solid #1a1a1a !important;
+            height: auto !important;
+            min-height: 50px;
         }
-        
+
         .tabulator-header .tabulator-col-content {
             padding: 0.5rem 0.4rem;
         }
-        
+
         .tabulator-header .tabulator-col-title {
             font-weight: 600;
             font-size: 0.65rem;
@@ -149,47 +127,45 @@
             line-height: 1.3;
             text-align: center;
         }
-        
-        .tabulator-header .tabulator-col {
-            height: auto !important;
-            min-height: 50px;
+
+        /* Bara breda tabeller får något större rubriktext */
+        .wide-table .tabulator-header .tabulator-col-title {
+            font-size: 0.72rem;
         }
-        
+
         .tabulator-tableholder {
             background: #f0c4c4;
-            overflow: hidden !important;
+            overflow-x: auto !important;
         }
-        
+
         .tabulator-row {
             background: #f0c4c4 !important;
             border-bottom: 1px solid #e8b8b8;
         }
-        
+
         .tabulator-row:nth-child(even) {
             background: #f5d0d0 !important;
         }
-        
+
         .tabulator-row:hover {
             background: #e8b0b0 !important;
         }
-        
+
         .tabulator-cell {
             padding: 0.5rem 0.4rem;
             border-right: none;
             color: #1a1a1a;
         }
-        
-        .tabulator-footer {
-            display: none;
-        }
-        
+
+        .tabulator-footer { display: none; }
+
         .instruction {
             font-size: 0.8rem;
             color: #666;
             margin-bottom: 0.5rem;
             font-style: italic;
         }
-        
+
         .footnote {
             font-size: 0.75rem;
             color: #666;
@@ -201,63 +177,56 @@
 <body>
     <div class="container">
         <h1 id="title">Laddar...</h1>
-        
+
         <div class="search-box">
             <input type="text" id="search" placeholder="🔍 Sök...">
         </div>
-        
+
         <p class="scroll-hint">👉 Svep för att se fler kolumner</p>
-        
         <p class="instruction">Klicka på en kolumnrubrik för att sortera</p>
-        
+
         <div class="table-container">
             <div id="tabell"><div class="loading">Laddar data...</div></div>
         </div>
-        
+
         <p class="footnote" id="footnote"></p>
     </div>
 
     <script>
-        // Skicka höjd till parent för dynamisk iframe
         function sendHeight() {
             const height = document.body.scrollHeight;
             window.parent.postMessage({ type: 'resize', height: height }, '*');
         }
-        
+
         document.addEventListener("DOMContentLoaded", function() {
-            
-            // Skicka höjd när sidan laddats och efter en kort fördröjning
             setTimeout(sendHeight, 100);
             setTimeout(sendHeight, 500);
-            
-            // Hämta tabellnamn från URL (?tabell=agenturer)
+
             const params = new URLSearchParams(window.location.search);
             const tabellNamn = params.get('tabell');
-            
+
             if (!tabellNamn) {
                 document.getElementById('title').textContent = 'Ingen tabell vald';
-                document.getElementById('tabell').innerHTML = '<div class="error">Ange tabell i URL:en, t.ex. ?tabell=agenturer</div>';
+                document.getElementById('tabell').innerHTML =
+                    '<div class="error">Ange tabell i URL:en, t.ex. ?tabell=agenturer</div>';
                 return;
             }
-            
-            // Bygg URL till CSV-filen (samma mapp)
+
             const csvUrl = tabellNamn + '.csv';
-            
-            // Hämta och parsa CSV
+
             fetch(csvUrl)
                 .then(response => {
                     if (!response.ok) throw new Error('Kunde inte ladda fil');
                     return response.text();
                 })
                 .then(csvText => {
-                    // Kolla om första raderna är titel/fotnot (börjar med #)
                     let titel = tabellNamn.charAt(0).toUpperCase() + tabellNamn.slice(1).replace(/-/g, ' ');
                     let fotnot = '';
                     let csvData = csvText;
-                    
+
                     const lines = csvText.split('\n');
                     let dataStartIndex = 0;
-                    
+
                     for (let i = 0; i < Math.min(lines.length, 5); i++) {
                         if (lines[i].startsWith('#titel:')) {
                             titel = lines[i].replace('#titel:', '').trim();
@@ -269,75 +238,100 @@
                             break;
                         }
                     }
-                    
+
                     csvData = lines.slice(dataStartIndex).join('\n');
-                    
+
                     document.getElementById('title').textContent = titel;
                     if (fotnot) {
                         document.getElementById('footnote').textContent = fotnot;
                     }
-                    
-                    // Parsa CSV
+
                     Papa.parse(csvData, {
                         header: true,
                         skipEmptyLines: true,
                         complete: function(results) {
                             if (results.errors.length > 0 || results.data.length === 0) {
-                                document.getElementById('tabell').innerHTML = '<div class="error">Kunde inte läsa data från: ' + tabellNamn + '.csv</div>';
+                                document.getElementById('tabell').innerHTML =
+                                    '<div class="error">Kunde inte läsa data från: ' + tabellNamn + '.csv</div>';
                                 return;
                             }
-                            
+
                             const data = results.data;
                             const headers = results.meta.fields;
-                            
-                            // Bygg kolumner dynamiskt
+                            const isWideTable = headers.length > 8;
+
+                            if (isWideTable) {
+                                document.querySelector('.table-container').classList.add('wide-table');
+                            }
+
                             const columns = headers.map(function(header, index) {
                                 const col = {
                                     title: header.replace(/_/g, ' '),
                                     field: header,
                                     headerSort: true
                                 };
-                                
-                                // Kolla om kolumnen innehåller siffror
-                                const sampleValues = data.slice(0, 5).map(function(row) { return row[header]; });
+
+                                const sampleValues = data.slice(0, 5).map(function(row) {
+                                    return row[header];
+                                });
+
                                 const isNumeric = sampleValues.every(function(val) {
                                     if (!val || val === '-' || val === '–') return true;
-                                    const cleaned = String(val).replace(/\s/g, '').replace(',', '.').replace('%', '');
+                                    const cleaned = String(val)
+                                        .replace(/\s/g, '')
+                                        .replace(',', '.')
+                                        .replace('%', '');
                                     return !isNaN(parseFloat(cleaned));
                                 });
-                                
+
                                 if (isNumeric && index > 0) {
                                     col.sorter = 'number';
                                     col.hozAlign = 'right';
                                     col.formatter = function(cell) {
                                         const val = cell.getValue();
                                         if (!val || val === '-' || val === '–') return '–';
-                                        const num = parseFloat(String(val).replace(/\s/g, '').replace(',', '.'));
+                                        const num = parseFloat(
+                                            String(val).replace(/\s/g, '').replace(',', '.')
+                                        );
                                         if (isNaN(num)) return val;
-                                        return num.toLocaleString('sv-SE', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+                                        return num.toLocaleString('sv-SE', {
+                                            minimumFractionDigits: 1,
+                                            maximumFractionDigits: 1
+                                        });
                                     };
-                                    col.minWidth = 75;
+                                    col.minWidth = isWideTable ? 105 : 75;
                                     col.widthGrow = 1;
                                 } else if (index === 0) {
                                     col.minWidth = 160;
                                     col.widthGrow = 1.5;
                                     col.hozAlign = 'left';
+                                } else if (isWideTable) {
+                                    // Textkolumner i breda tabeller får tillräcklig plats.
+                                    col.minWidth = 95;
                                 }
-                                
+
                                 return col;
                             });
-                            
-                            // Skapa tabellen
+
                             var table = new Tabulator("#tabell", {
                                 data: data,
                                 columns: columns,
-                                layout: "fitColumns",
-                                initialSort: columns.length > 1 ? [{column: headers[1], dir: "desc"}] : []
+
+                                // Gamla tabeller (<=8 kolumner) behåller gamla beteendet.
+                                // Bredare tabeller får innehållsanpassade kolumner + sidscroll.
+                                layout: isWideTable ? "fitDataStretch" : "fitColumns",
+
+                                initialSort: columns.length > 1
+                                    ? [{column: headers[1], dir: "desc"}]
+                                    : []
                             });
-                            
-                            // Sökfunktion
+
+                            table.on("tableBuilt", sendHeight);
+                            table.on("dataProcessed", sendHeight);
+
                             document.getElementById("search").addEventListener("input", function(e) {
                                 var val = e.target.value.toLowerCase();
+
                                 if (val === "") {
                                     table.clearFilter();
                                 } else {
@@ -349,14 +343,16 @@
                                 }
                             });
                         },
-                        error: function(error) {
-                            document.getElementById('tabell').innerHTML = '<div class="error">Fel vid parsning av CSV</div>';
+                        error: function() {
+                            document.getElementById('tabell').innerHTML =
+                                '<div class="error">Fel vid parsning av CSV</div>';
                         }
                     });
                 })
                 .catch(error => {
                     document.getElementById('title').textContent = 'Fel';
-                    document.getElementById('tabell').innerHTML = '<div class="error">Kunde inte hitta: ' + tabellNamn + '.csv</div>';
+                    document.getElementById('tabell').innerHTML =
+                        '<div class="error">Kunde inte hitta: ' + tabellNamn + '.csv</div>';
                 });
         });
     </script>

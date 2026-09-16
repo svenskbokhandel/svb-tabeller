@@ -121,16 +121,12 @@
         }
 
         .tabulator-header .tabulator-col-content {
-            padding: 0.7rem 0.85rem 0.5rem 0.3rem;
+            padding: 0.65rem 0.25rem 0.5rem 0.25rem;
             position: relative;
         }
 
         .tabulator-header .tabulator-col .tabulator-col-sorter {
-            position: absolute !important;
-            right: 0.18rem !important;
-            top: 0.28rem !important;
-            transform: none !important;
-            margin: 0 !important;
+            display: none !important;
         }
 
         .tabulator-header .tabulator-col-title {
@@ -152,6 +148,13 @@
         .tabulator-header .tabulator-col-content {
             height: auto !important;
             overflow: visible !important;
+        }
+
+
+        .wide-table .tabulator-header .tabulator-col-title {
+            font-size: 0.62rem;
+            overflow-wrap: anywhere;
+            word-break: normal;
         }
 
         .tabulator-tableholder {
@@ -341,9 +344,12 @@
                                     } else if (index === 4 || index === 10) {
                                         col.minWidth = 56;
                                         col.widthGrow = 0.6;
+                                    } else if (index === headers.length - 1) {
+                                        col.minWidth = 78;
+                                        col.widthGrow = 1.05;
                                     } else {
-                                        col.minWidth = 66;
-                                        col.widthGrow = 0.75;
+                                        col.minWidth = 62;
+                                        col.widthGrow = 0.7;
                                     }
                                 } else if (isNumeric && index > 0) {
                                     col.minWidth = 75;

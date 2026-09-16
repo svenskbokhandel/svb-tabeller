@@ -121,7 +121,7 @@
         }
 
         .tabulator-header .tabulator-col-content {
-            padding: 0.65rem 0.25rem 0.5rem 0.25rem;
+            padding: 0.6rem 0.18rem 0.45rem 0.18rem;
             position: relative;
         }
 
@@ -152,9 +152,11 @@
 
 
         .wide-table .tabulator-header .tabulator-col-title {
-            font-size: 0.62rem;
-            overflow-wrap: anywhere;
-            word-break: normal;
+            font-size: 0.60rem;
+            white-space: normal !important;
+            overflow-wrap: normal !important;
+            word-break: keep-all !important;
+            hyphens: none !important;
         }
 
         .tabulator-tableholder {
@@ -288,9 +290,24 @@
                                 document.querySelector('.table-container').classList.add('wide-table');
                             }
 
+                            const shortTitles = [
+                                "Bolagsnamn",
+                                "Grupp",
+                                "Ort",
+                                "Bokslut",
+                                "Anställda",
+                                "Omsättning<br>MNKR",
+                                "Resultat<br>MNKR",
+                                "Resultat<br>procent",
+                                "Bruttovinst<br>procent",
+                                "Soliditet<br>procent",
+                                "LOH",
+                                "Marginalförändring<br>procentenheter"
+                            ];
+
                             const columns = headers.map(function(header, index) {
                                 const col = {
-                                    title: header.replace(/_/g, ' '),
+                                    title: (isWideTable && shortTitles[index]) ? shortTitles[index] : header.replace(/_/g, ' '),
                                     field: header,
                                     headerSort: true
                                 };
@@ -326,29 +343,29 @@
                                 }
 
                                 if (index === 0) {
-                                    col.minWidth = 155;
+                                    col.minWidth = 145;
                                     col.widthGrow = 2.2;
                                     col.hozAlign = 'left';
                                 } else if (isWideTable) {
                                     // Fördela platsen efter innehållstyp i breda tabeller.
                                     // Grupp, ort och bokslut får lite mer plats än sifferkolumnerna.
                                     if (index === 1) {
-                                        col.minWidth = 72;
+                                        col.minWidth = 66;
                                         col.widthGrow = 0.85;
                                     } else if (index === 2) {
-                                        col.minWidth = 70;
+                                        col.minWidth = 64;
                                         col.widthGrow = 0.85;
                                     } else if (index === 3) {
-                                        col.minWidth = 72;
+                                        col.minWidth = 66;
                                         col.widthGrow = 0.85;
                                     } else if (index === 4 || index === 10) {
-                                        col.minWidth = 56;
+                                        col.minWidth = 52;
                                         col.widthGrow = 0.6;
                                     } else if (index === headers.length - 1) {
-                                        col.minWidth = 78;
+                                        col.minWidth = 70;
                                         col.widthGrow = 1.05;
                                     } else {
-                                        col.minWidth = 62;
+                                        col.minWidth = 58;
                                         col.widthGrow = 0.7;
                                     }
                                 } else if (isNumeric && index > 0) {

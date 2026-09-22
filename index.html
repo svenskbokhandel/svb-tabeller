@@ -180,6 +180,28 @@
             mask-image: linear-gradient(to right, #000 82%, transparent 100%);
         }
 
+
+        /* Flerårsöversikt: första kolumnen är nyckeltal, övriga kolumner är år */
+        .year-overview .tabulator-header .tabulator-col-title {
+            font-size: 0.72rem;
+            white-space: nowrap !important;
+            overflow: visible !important;
+            max-height: none !important;
+            text-transform: none;
+        }
+
+        .year-overview .tabulator-cell:first-child {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .year-overview #tabell,
+            .year-overview .tabulator {
+                min-width: 900px;
+            }
+        }
+
         .tabulator-tableholder {
             background: #f0c4c4;
             overflow-x: hidden !important;
@@ -305,10 +327,15 @@
 
                             const data = results.data;
                             const headers = results.meta.fields;
-                            const isWideTable = headers.length > 8;
+                            const isYearOverview = headers.length > 2 &&
+                                headers.slice(1).every(function(h) { return /^20\d{2}$/.test(h.trim()); });
+                            const isWideTable = headers.length > 8 && !isYearOverview;
 
                             if (isWideTable) {
                                 document.querySelector('.table-container').classList.add('wide-table');
+                            }
+                            if (isYearOverview) {
+                                document.querySelector('.table-container').classList.add('year-overview');
                             }
 
                             const shortTitles = [
@@ -330,9 +357,24 @@
                                 const col = {
                                     title: (isWideTable && shortTitles[index]) ? shortTitles[index] : header.replace(/_/g, ' '),
                                     field: header,
-                                    headerSort: true,
+                                    headerSort: !isYearOverview,
                                     resizable: false
                                 };
+
+                                if (isYearOverview) {
+                                    if (index === 0) {
+                                        col.title = "";
+                                        col.minWidth = 185;
+                                        col.widthGrow = 1.8;
+                                        col.hozAlign = "left";
+                                        col.frozen = true;
+                                    } else {
+                                        col.title = header;
+                                        col.minWidth = 72;
+                                        col.widthGrow = 1;
+                                        col.hozAlign = "right";
+                                    }
+                                }
 
                                 const sampleValues = data.slice(0, 5).map(function(row) {
                                     return row[header];
@@ -357,6 +399,11 @@
                                             String(val).replace(/\s/g, '').replace(',', '.')
                                         );
                                         if (isNaN(num)) return val;
+                                        if (isYearOverview && Number.isInteger(num)) {
+                                            return num.toLocaleString('sv-SE', {
+                                                maximumFractionDigits: 0
+                                            });
+                                        }
                                         return num.toLocaleString('sv-SE', {
                                             minimumFractionDigits: 1,
                                             maximumFractionDigits: 1
@@ -364,11 +411,11 @@
                                     };
                                 }
 
-                                if (index === 0) {
+                                if (!isYearOverview && index === 0) {
                                     col.minWidth = 145;
                                     col.widthGrow = 2.2;
                                     col.hozAlign = 'left';
-                                } else if (isWideTable) {
+                                } else if (!isYearOverview && isWideTable) {
                                     // Fördela platsen efter innehållstyp i breda tabeller.
                                     // Grupp, ort och bokslut får lite mer plats än sifferkolumnerna.
                                     if (index === 1) {
@@ -390,7 +437,7 @@
                                         col.minWidth = 58;
                                         col.widthGrow = 0.7;
                                     }
-                                } else if (isNumeric && index > 0) {
+                                } else if (!isYearOverview && isNumeric && index > 0) {
                                     col.minWidth = 75;
                                     col.widthGrow = 1;
                                 }
@@ -412,9 +459,9 @@
                                 // På mobil får tabellen en större minbredd och en enda horisontell scrollbar.
                                 layout: "fitColumns",
 
-                                initialSort: columns.length > 0
-                                    ? [{column: headers[0], dir: "asc"}]
-                                    : []
+                                initialSort: isYearOverview
+                                    ? []
+                                    : (columns.length > 0 ? [{column: headers[0], dir: "asc"}] : [])
                             });
 
                             table.on("tableBuilt", function() {

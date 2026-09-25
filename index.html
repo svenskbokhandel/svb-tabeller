@@ -344,24 +344,31 @@
                                 if (instruction) instruction.style.display = 'none';
                             }
 
-                            const shortTitles = [
-                                "Bolagsnamn",
-                                "Grupp",
-                                "Ort",
-                                "Bokslut",
-                                "Anställda",
-                                "Omsättning<br>MNKR",
-                                "Resultat<br>MNKR",
-                                "Resultat<br>procent",
-                                "LOH",
-                                "Soliditet<br>procent",
-                                "LOH",
-                                "Marginalförändring<br>procentenheter"
-                            ];
+                            // Visningsrubriker styrs av CSV-rubrikens namn, inte kolumnens position.
+                            // Då kan olika tabeller ha olika kolumner utan att få fel etikett.
+                            const displayTitles = {
+                                "Bolagsnamn": "Bolagsnamn",
+                                "Ägare/Grupp": "Ägare/Grupp",
+                                "Grupp": "Grupp",
+                                "Ort": "Ort",
+                                "Bokslut": "Bokslut",
+                                "Anställda": "Anställda",
+                                "Omsättning": "Omsättning<br>MNKR",
+                                "Resultat": "Resultat<br>MNKR",
+                                "Vinstmarginal": "Vinstmarginal<br>procent",
+                                "LOH": "LOH",
+                                "Förändring (Oms)": "Förändring Oms.<br>procent",
+                                "Förändring (Oms) ": "Förändring Oms.<br>procent",
+                                "Förändring (Res)": "Förändring Res.<br>procentenheter",
+                                "Nedgång": "Nedgång<br>procent",
+                                "Nedgång procent": "Nedgång<br>procent",
+                                "Tillväxt": "Tillväxt<br>procent",
+                                "Soliditet": "Soliditet<br>procent"
+                            };
 
                             const columns = headers.map(function(header, index) {
                                 const col = {
-                                    title: (isWideTable && shortTitles[index]) ? shortTitles[index] : header.replace(/_/g, ' '),
+                                    title: (isWideTable && displayTitles[header]) ? displayTitles[header] : header.replace(/_/g, ' '),
                                     field: header,
                                     headerSort: !isYearOverview,
                                     resizable: false

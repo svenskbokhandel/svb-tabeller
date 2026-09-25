@@ -444,8 +444,9 @@
                                         col.minWidth = 52;
                                         col.widthGrow = 0.6;
                                     } else if (index === headers.length - 1) {
-                                        col.minWidth = 70;
-                                        col.widthGrow = 1.05;
+                                        // Sista kolumnen ska inte svälja tabellens restutrymme.
+                                        col.minWidth = 58;
+                                        col.widthGrow = 0.6;
                                     } else {
                                         col.minWidth = 58;
                                         col.widthGrow = 0.7;

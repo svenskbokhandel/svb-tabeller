@@ -246,14 +246,15 @@
             font-weight: 500;
 }
     
-        /* Visa hela kolumnrubrikerna utan toning eller avklippning */
+        /* Bred tabell: rubriker får två rader, därefter diskret toning */
         .wide-table .tabulator-header .tabulator-col-title {
             white-space: normal !important;
-            overflow: visible !important;
+            overflow: hidden !important;
             text-overflow: clip !important;
-            -webkit-mask-image: none !important;
-            mask-image: none !important;
-            max-height: none !important;
+            line-height: 1.15 !important;
+            max-height: 2.3em !important;
+            -webkit-mask-image: linear-gradient(to right, #000 88%, transparent 100%) !important;
+            mask-image: linear-gradient(to right, #000 88%, transparent 100%) !important;
         }
 
     </style>
@@ -436,8 +437,8 @@
                                 }
 
                                 if (!isYearOverview && index === 0) {
-                                    col.minWidth = 125;
-                                    col.widthGrow = 1.7;
+                                    col.minWidth = 135;
+                                    col.widthGrow = 1.95;
                                     col.hozAlign = 'left';
                                 } else if (!isYearOverview && isWideTable) {
                                     // Fördela platsen efter innehållstyp i breda tabeller.

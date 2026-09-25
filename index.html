@@ -257,6 +257,16 @@
             mask-image: linear-gradient(to right, #000 88%, transparent 100%) !important;
         }
 
+    
+        .wide-table .tabulator-col[tabulator-field="Förändring (Oms)"] .tabulator-col-title,
+        .wide-table .tabulator-col[tabulator-field="Förändring (Oms) "] .tabulator-col-title,
+        .wide-table .tabulator-col[tabulator-field="Förändring (Res)"] .tabulator-col-title {
+            max-height: 3.45em !important;
+            -webkit-mask-image: none !important;
+            mask-image: none !important;
+            font-size: 0.58rem !important;
+        }
+
     </style>
 </head>
 <body>
@@ -424,7 +434,7 @@
                                             String(val).replace(/\s/g, '').replace(',', '.')
                                         );
                                         if (isNaN(num)) return val;
-                                        if (isYearOverview && Number.isInteger(num)) {
+                                        if ((isYearOverview && Number.isInteger(num)) || header === "Anställda") {
                                             return num.toLocaleString('sv-SE', {
                                                 maximumFractionDigits: 0
                                             });

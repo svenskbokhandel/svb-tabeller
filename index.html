@@ -230,17 +230,21 @@
 
         .instruction {
             font-size: 0.8rem;
-            color: #666;
             margin-bottom: 0.5rem;
             font-style: italic;
-        }
+        
+            color: #4a4a4a;
+            font-weight: 500;
+}
 
         .footnote {
             font-size: 0.75rem;
-            color: #666;
             margin-top: 0.75rem;
             font-style: italic;
-        }
+        
+            color: #4a4a4a;
+            font-weight: 500;
+}
     </style>
 </head>
 <body>
@@ -336,6 +340,8 @@
                             }
                             if (isYearOverview) {
                                 document.querySelector('.table-container').classList.add('year-overview');
+                                const instruction = document.querySelector('.instruction');
+                                if (instruction) instruction.style.display = 'none';
                             }
 
                             const shortTitles = [
@@ -461,7 +467,9 @@
 
                                 initialSort: isYearOverview
                                     ? []
-                                    : (columns.length > 0 ? [{column: headers[0], dir: "asc"}] : [])
+                                    : (tabellNamn === "De-mest-lonsamma_widget" && headers.includes("Vinstmarginal")
+                                        ? [{column: "Vinstmarginal", dir: "desc"}]
+                                        : (columns.length > 0 ? [{column: headers[0], dir: "asc"}] : []))
                             });
 
                             table.on("tableBuilt", function() {

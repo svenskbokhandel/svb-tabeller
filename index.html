@@ -245,6 +245,17 @@
             color: #4a4a4a;
             font-weight: 500;
 }
+    
+        /* Visa hela kolumnrubrikerna utan toning eller avklippning */
+        .wide-table .tabulator-header .tabulator-col-title {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            -webkit-mask-image: none !important;
+            mask-image: none !important;
+            max-height: none !important;
+        }
+
     </style>
 </head>
 <body>

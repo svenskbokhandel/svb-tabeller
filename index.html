@@ -509,12 +509,53 @@
                                                     : (columns.length > 0 ? [{column: headers[0], dir: "asc"}] : [])))))
                             });
 
+                            function updateSortInstruction(sorters) {
+                                if (isYearOverview) return;
+                                const instruction = document.querySelector('.instruction');
+                                if (!instruction) return;
+
+                                const active = sorters && sorters.length ? sorters[0] : null;
+                                if (!active) {
+                                    instruction.textContent = "Klicka på en kolumnrubrik för att sortera";
+                                    return;
+                                }
+
+                                const field = active.field;
+                                const labelMap = {
+                                    "Nedgång procent": "Nedgång",
+                                    "Förändring (Oms)": "Förändring (Oms)",
+                                    "Förändring (Res)": "Förändring (Res)"
+                                };
+                                const label = labelMap[field] || field;
+                                const textFields = ["Bolagsnamn","Ägare/Grupp","Grupp","Ort","Bokslut"];
+
+                                let direction;
+                                if (textFields.includes(field)) {
+                                    direction = active.dir === "asc" ? "A–Ö" : "Ö–A";
+                                } else if (field === "Nedgång procent") {
+                                    // Negativa tal: mest negativt värde kommer först vid stigande sortering.
+                                    direction = active.dir === "asc" ? "störst först" : "minst först";
+                                } else {
+                                    direction = active.dir === "desc" ? "högst först" : "lägst först";
+                                }
+
+                                instruction.innerHTML =
+                                    "<strong>Sorterad på: " + label + " – " + direction + "</strong>" +
+                                    " · Klicka på en kolumnrubrik för att ändra";
+                            }
+
+                            table.on("dataSorted", function(sorters) {
+                                updateSortInstruction(sorters);
+                                sendHeight();
+                            });
+
                             table.on("tableBuilt", function() {
                                 document.querySelectorAll('.tabulator-col-title').forEach(function(el) {
                                     if (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight) {
                                         el.classList.add('is-truncated');
                                     }
                                 });
+                                updateSortInstruction(table.getSorters());
                                 sendHeight();
                             });
                             table.on("dataProcessed", sendHeight);

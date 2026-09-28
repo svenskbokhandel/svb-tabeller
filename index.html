@@ -393,6 +393,7 @@
                                     title: (isWideTable && displayTitles[header]) ? displayTitles[header] : header.replace(/_/g, ' '),
                                     field: header,
                                     headerSort: !isYearOverview,
+                                    headerHozAlign: "center",
                                     resizable: false
                                 };
 
@@ -497,9 +498,15 @@
 
                                 initialSort: isYearOverview
                                     ? []
-                                    : (tabellNamn === "De-mest-lonsamma_widget" && headers.includes("Vinstmarginal")
+                                    : ((tabellNamn === "De-mest-lonsamma_widget" || tabellNamn === "De-mest-lonsamma_widget_FINAL") && headers.includes("Vinstmarginal")
                                         ? [{column: "Vinstmarginal", dir: "desc"}]
-                                        : (columns.length > 0 ? [{column: headers[0], dir: "asc"}] : []))
+                                        : ((tabellNamn === "50-storsta-bokhandelsbolagen_widget" || tabellNamn === "50-storsta-bokhandelsbolagen_widget_FINAL") && headers.includes("Omsättning")
+                                            ? [{column: "Omsättning", dir: "desc"}]
+                                            : ((tabellNamn === "Krympare_widget" || tabellNamn === "Krympare_widget_FINAL") && headers.includes("Nedgång procent")
+                                                ? [{column: "Nedgång procent", dir: "asc"}]
+                                                : ((tabellNamn === "Snabbvaxare_widget" || tabellNamn === "Snabbvaxare_widget_FINAL") && headers.includes("Tillväxt")
+                                                    ? [{column: "Tillväxt", dir: "desc"}]
+                                                    : (columns.length > 0 ? [{column: headers[0], dir: "asc"}] : [])))))
                             });
 
                             table.on("tableBuilt", function() {

@@ -267,6 +267,24 @@
             font-size: 0.58rem !important;
         }
 
+        /* Nya förlagstabeller: visa hela kolumnrubriker och radetiketter. */
+        .publisher-table .table-container { overflow-x: auto; }
+        .publisher-table .year-overview #tabell,
+        .publisher-table .year-overview .tabulator { min-width: 1200px; }
+        .publisher-table .tabulator-header .tabulator-col-title {
+            max-height: none !important;
+            overflow: visible !important;
+            white-space: normal !important;
+            overflow-wrap: anywhere !important;
+            word-break: normal !important;
+            -webkit-mask-image: none !important;
+            mask-image: none !important;
+        }
+        .publisher-table .tabulator-cell:first-child {
+            white-space: normal;
+            text-overflow: clip;
+            overflow-wrap: anywhere;
+        }
     </style>
 </head>
 <body>
@@ -307,6 +325,14 @@
                 return;
             }
 
+            // Förlagstabellerna behåller originalordningen. Äldre tabeller behåller sina inställningar.
+            const isPublisherTable = [
+                'forlag-krympare', 'forlag-20-storsta-ovriga',
+                'forlag-lonsamma-allman-barn', 'forlag-lonsamma-ovriga',
+                'forlag-40-storsta-allman-barn', 'forlag-snabbvaxare',
+                'forlag-flerarsutveckling-2016-2025'
+            ].includes(tabellNamn);
+            if (isPublisherTable) document.body.classList.add('publisher-table');
             const csvUrl = tabellNamn + '.csv';
 
             fetch(csvUrl)
@@ -319,7 +345,7 @@
                     let fotnot = '';
                     let csvData = csvText;
 
-                    const lines = csvText.split('\n');
+                    const lines = csvText.replace(/^\uFEFF/, '').split('\n');
                     let dataStartIndex = 0;
 
                     for (let i = 0; i < Math.min(lines.length, 5); i++) {
@@ -363,7 +389,7 @@
                             if (isYearOverview) {
                                 document.querySelector('.table-container').classList.add('year-overview');
                                 const instruction = document.querySelector('.instruction');
-                                if (instruction) instruction.style.display = 'none';
+                                if (instruction && !isPublisherTable) instruction.style.display = 'none';
                             }
 
                             // Visningsrubriker styrs av CSV-rubrikens namn, inte kolumnens position.
@@ -392,7 +418,7 @@
                                 const col = {
                                     title: (isWideTable && displayTitles[header]) ? displayTitles[header] : header.replace(/_/g, ' '),
                                     field: header,
-                                    headerSort: !isYearOverview,
+                                    headerSort: isPublisherTable || !isYearOverview,
                                     headerHozAlign: "center",
                                     resizable: false
                                 };
@@ -479,6 +505,34 @@
                                     col.widthGrow = 1;
                                 }
 
+                                if (isPublisherTable) {
+                                    // Visa exakt CSV-värde, inklusive decimalprecision och tusentalsmellanrum.
+                                    col.formatter = 'plaintext';
+                                    col.sorter = function(a, b) {
+                                        return String(a ?? '').localeCompare(String(b ?? ''), 'sv', {sensitivity: 'base'});
+                                    };
+                                    if (index === 0) {
+                                        col.variableHeight = true;
+                                        if (isYearOverview) {
+                                            col.title = header;
+                                            col.minWidth = 250;
+                                        }
+                                    }
+                                    if (isYearOverview && index > 0) col.minWidth = 95;
+                                    if (isNumeric && index > 0) {
+                                        col.sorter = function(a, b) {
+                                            function number(value) {
+                                                const cleaned = String(value ?? '').replace(/\s/g, '').replace('%', '').replace(',', '.');
+                                                return cleaned === '' || cleaned === '-' || cleaned === '–' ? null : Number(cleaned);
+                                            }
+                                            const av = number(a), bv = number(b);
+                                            if (av === null || !Number.isFinite(av)) return bv === null || !Number.isFinite(bv) ? 0 : -1;
+                                            if (bv === null || !Number.isFinite(bv)) return 1;
+                                            return av - bv;
+                                        };
+                                    }
+                                }
+
                                 return col;
                             });
 
@@ -496,7 +550,7 @@
                                 // På mobil får tabellen en större minbredd och en enda horisontell scrollbar.
                                 layout: "fitColumns",
 
-                                initialSort: isYearOverview
+                                initialSort: (isPublisherTable || isYearOverview)
                                     ? []
                                     : ((tabellNamn === "De-mest-lonsamma_widget" || tabellNamn === "De-mest-lonsamma_widget_FINAL") && headers.includes("Vinstmarginal")
                                         ? [{column: "Vinstmarginal", dir: "desc"}]
@@ -510,7 +564,7 @@
                             });
 
                             function updateSortInstruction(sorters) {
-                                if (isYearOverview) return;
+                                if (isYearOverview && !isPublisherTable) return;
                                 const instruction = document.querySelector('.instruction');
                                 if (!instruction) return;
 
@@ -527,20 +581,20 @@
                                     "Förändring (Res)": "Förändring (Res)"
                                 };
                                 const label = labelMap[field] || field;
-                                const textFields = ["Bolagsnamn","Ägare/Grupp","Grupp","Ort","Bokslut"];
+                                const textFields = ["Bolagsnamn","Ägare/Grupp","Grupp","Ort","Bokslut","Inriktning","År"];
 
                                 let direction;
                                 if (textFields.includes(field)) {
                                     direction = active.dir === "asc" ? "A–Ö" : "Ö–A";
-                                } else if (field === "Nedgång procent") {
+                                } else if ((field === "Nedgång procent" || field === "Nedgång")) {
                                     // Negativa tal: mest negativt värde kommer först vid stigande sortering.
                                     direction = active.dir === "asc" ? "störst först" : "minst först";
                                 } else {
                                     direction = active.dir === "desc" ? "högst först" : "lägst först";
                                 }
 
-                                instruction.innerHTML =
-                                    "<strong>Sorterad på: " + label + " – " + direction + "</strong>" +
+                                instruction.textContent =
+                                    "Sorterad på: " + label + " – " + direction +
                                     " · Klicka på en kolumnrubrik för att ändra";
                             }
 
